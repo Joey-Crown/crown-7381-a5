@@ -1,5 +1,7 @@
 package ucf.assignments;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -56,6 +58,18 @@ public class MainWindowController {
     public Dialog notValidInput = new Dialog();
 
     public static ItemModel storedInventory = new ItemModel();
+    public static Item currentlySelected;
+
+    public void initialize() {
+        itemsTableView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+        itemsTableView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Item>() {
+            @Override
+            public void changed(ObservableValue<? extends Item> observable, Item oldValue, Item newValue) {
+                currentlySelected = newValue;
+            }
+        });
+    }
 
     public void displayList() {
         itemsTableView.setItems(storedInventory.inventory);
@@ -80,9 +94,9 @@ public class MainWindowController {
     public void onAddItemClick () {
         String serialNumber = serialNumberField.getText();
         String name = itemNameField.getText();
-        double valueString = -1;
+        double value= -1;
         try {
-            valueString = Float.parseFloat(itemPriceField.getText());
+            value = Float.parseFloat(itemPriceField.getText());
         } catch (NumberFormatException e) {
             notValidInput.setTitle("Invalid Input.");
             notValidInput.setContentText("Value field must be a number to 2 decimal places");
@@ -90,8 +104,8 @@ public class MainWindowController {
             return;
         }
 
-        if (Item.verifySerialNumberFormat(serialNumber) && valueString != -1) {
-            Item newItem = new Item(name, serialNumber, valueString);
+        if (Item.verifySerialNumberFormat(serialNumber) && value > 1) {
+            Item newItem = new Item(name, serialNumber, value);
             storedInventory.inventory.add(newItem);
         }
 
