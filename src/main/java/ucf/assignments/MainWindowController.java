@@ -1,5 +1,6 @@
 package ucf.assignments;
 
+import com.google.gson.Gson;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -9,12 +10,16 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class MainWindowController {
 
     private SceneManager sceneManager;
     public static ItemModel itemModel;
+    private FileManager fileManager;
+    private Serializer serializer;
 
     @FXML
     private ResourceBundle resources;
@@ -135,20 +140,36 @@ public class MainWindowController {
         String fileName = saveFileChooser.showSaveDialog(new Stage()).getAbsolutePath();
         String data = "";
 
+        //TODO Consider doing data processing inside the file manager class
+
+        // format data to CSV
         if (fileName.endsWith(".csv")) {
             data = "Serial Number, Name, Price";
             for (Item item : itemModel.inventory) {
                 data += item.getSerialNumber() + "," + item.getName() + "," + String.valueOf(item.getValue()) + "\n";
             }
-          if (FileManager.saveAsCSV(fileName, data)) {
+          if (fileManager.saveAsCSV(fileName, data)) {
               System.out.println("File Saved Successfully");
           } else {
               System.out.println("Problem Saving File");
           }
-
+        // format data to HTML
         } else if (fileName.endsWith(".html")) {
-
+            //TODO
+            // Format data from Observable list to HTML
+        // format data to JSON
         } else if (fileName.endsWith(".json")) {
+            Gson gson = new Gson();
+            List<Serializer> serializedList = new ArrayList<Serializer>();
+            for (Item item: itemModel.inventory) {
+                serializedList.add(serializer.serializeItem(item));
+            }
+            data = gson.toJson(serializedList);
+            if (fileManager.saveAsJson(fileName, data)) {
+                System.out.println("File Saved Successfully");
+            } else {
+                System.out.println("Problem Saving File");
+            }
 
         }
 
