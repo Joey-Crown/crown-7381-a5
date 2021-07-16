@@ -5,10 +5,16 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
+import java.io.File;
 import java.util.ResourceBundle;
 
 public class MainWindowController {
+
+    private SceneManager sceneManager;
+    public static ItemModel itemModel;
 
     @FXML
     private ResourceBundle resources;
@@ -55,24 +61,22 @@ public class MainWindowController {
     @FXML
     private Button editItemButton;
 
+    public MainWindowController(ItemModel itemModel, SceneManager sceneManager) {
+        this.itemModel = itemModel;
+        this.sceneManager = sceneManager;
+    }
+
     public Dialog notValidInput = new Dialog();
 
-    public static ItemModel storedInventory = new ItemModel();
-    public static Item currentlySelected;
-
     public void initialize() {
-        itemsTableView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
-        itemsTableView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Item>() {
-            @Override
-            public void changed(ObservableValue<? extends Item> observable, Item oldValue, Item newValue) {
-                currentlySelected = newValue;
-            }
-        });
+        displayList();
+
+        itemsTableView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
     }
 
     public void displayList() {
-        itemsTableView.setItems(storedInventory.inventory);
+        itemsTableView.setItems(itemModel.inventory);
 
         itemsSerialNumberColumn.setCellValueFactory(new PropertyValueFactory<Item, String>("serialNumber"));
         itemsNameColumn.setCellValueFactory(new PropertyValueFactory<Item, String>("name"));
@@ -82,7 +86,7 @@ public class MainWindowController {
             protected void updateItem(Double value, boolean empty) {
                 super.updateItem(value, empty);
                 if (empty) {
-                    setText("NO VALUE");
+                    setText(null);
                 } else {
                     setText(String.format("%.2f", value));
                 }
@@ -94,7 +98,7 @@ public class MainWindowController {
     public void onAddItemClick () {
         String serialNumber = serialNumberField.getText();
         String name = itemNameField.getText();
-        double value= -1;
+        double value;
         try {
             value = Float.parseFloat(itemPriceField.getText());
         } catch (NumberFormatException e) {
@@ -104,12 +108,50 @@ public class MainWindowController {
             return;
         }
 
-        if (Item.verifySerialNumberFormat(serialNumber) && value > 1) {
+        if (Item.verifySerialNumberFormat(serialNumber) && value > 0) {
             Item newItem = new Item(name, serialNumber, value);
-            storedInventory.inventory.add(newItem);
+            itemModel.inventory.add(newItem);
         }
 
     }
 
+    public void onEditItemClick() {
+        Item oldItem = itemsTableView.getSelectionModel().getSelectedItem();
+        Stage stage = new Stage();
+        stage.setTitle("Add New Item");
+        stage.setScene(sceneManager.getScene("EditItem"));
+        stage.show();
+    }
 
+    public void onSaveAsClick() {
+        FileChooser saveFileChooser = new FileChooser();
+        saveFileChooser.setTitle("Save File As...");
+
+        saveFileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("CSV", "*.csv"),
+                new FileChooser.ExtensionFilter("HTML", "*.html"),
+                new FileChooser.ExtensionFilter("JSON", "*.json"));
+
+        String fileName = saveFileChooser.showSaveDialog(new Stage()).getAbsolutePath();
+        String data = "";
+
+        if (fileName.endsWith(".csv")) {
+            data = "Serial Number, Name, Price";
+            for (Item item : itemModel.inventory) {
+                data += item.getSerialNumber() + "," + item.getName() + "," + String.valueOf(item.getValue()) + "\n";
+            }
+          if (FileManager.saveAsCSV(fileName, data)) {
+              System.out.println("File Saved Successfully");
+          } else {
+              System.out.println("Problem Saving File");
+          }
+
+        } else if (fileName.endsWith(".html")) {
+
+        } else if (fileName.endsWith(".json")) {
+
+        }
+
+
+    }
 }

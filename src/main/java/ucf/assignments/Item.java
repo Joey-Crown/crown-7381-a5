@@ -60,7 +60,7 @@ public class Item {
         char[] serialNumberArray = serialNumber.toCharArray();
 
         for (int i = 0; i < serialNumberArray.length; i++) {
-            if (!Character.isDigit(serialNumberArray[i]) || !Character.isLetter(serialNumberArray[i])) {
+            if (!Character.isDigit(serialNumberArray[i]) && !Character.isLetter(serialNumberArray[i])) {
                 System.out.println("Serial number in incorrect format.");
                 return false;
             }
