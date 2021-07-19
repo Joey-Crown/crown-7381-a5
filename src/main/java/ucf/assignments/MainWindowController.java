@@ -16,17 +16,16 @@ import java.util.ResourceBundle;
 
 public class MainWindowController {
 
-    private SceneManager sceneManager;
-    public static ItemModel itemModel;
-    private FileManager fileManager;
-    private Serializer serializer;
-
     @FXML
     private ResourceBundle resources;
 
     // menu bar elements
     @FXML
     private MenuBar menuBar;
+    @FXML
+    private Menu fileMenu;
+    @FXML
+    private MenuItem saveFile;
 
     // Table elements
     @FXML
@@ -66,6 +65,11 @@ public class MainWindowController {
     @FXML
     private Button editItemButton;
 
+    private final SceneManager sceneManager;
+    public static ItemModel itemModel;
+    private FileManager fileManager;
+    private Serializer serializer;
+
     public MainWindowController(ItemModel itemModel, SceneManager sceneManager) {
         this.itemModel = itemModel;
         this.sceneManager = sceneManager;
@@ -74,7 +78,7 @@ public class MainWindowController {
     public Dialog notValidInput = new Dialog();
 
     public void initialize() {
-
+        // TODO do the scenes have to be loaded through here?
         displayList();
 
         itemsTableView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);

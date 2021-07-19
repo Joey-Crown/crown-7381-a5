@@ -23,7 +23,7 @@ public class SceneManager {
 
         try {
             root = loader.load();
-            scenes.put("EditItem", new Scene(root));
+            scenes.put("MainWindow", new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
         }

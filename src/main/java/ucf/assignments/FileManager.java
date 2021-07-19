@@ -20,9 +20,10 @@ public class FileManager {
 
     boolean saveAsHTML(String fileName, String data) {
 
+        return true;
     }
 
-    boolean saveAsJson(String fileName, String data) {
-
+    public static boolean saveAsJson(String fileName, String data) {
+        return true;
     }
 }
