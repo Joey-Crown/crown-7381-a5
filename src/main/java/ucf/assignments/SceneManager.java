@@ -5,21 +5,18 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 public class SceneManager {
 
-    Map<String, Scene> scenes;
+    Map<String, Scene> scenes = new HashMap<>();
 
     void load() {
-        ItemModel itemModel = new ItemModel();
-
-        MainWindowController mainWindowController = new MainWindowController(itemModel, this);
 
         Parent root;
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("MainWindow.fxml"));
-        loader.setController(mainWindowController);
 
         try {
             root = loader.load();

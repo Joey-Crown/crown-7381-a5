@@ -17,7 +17,4 @@ public class Serializer {
         this.value = value;
     }
 
-    Serializer serializeItem(Item item) {
-        return new Serializer(item.getSerialNumber(), item.getName(), item.getValue());
-    }
 }

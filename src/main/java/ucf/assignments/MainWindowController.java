@@ -3,18 +3,22 @@ package ucf.assignments;
 import com.google.gson.Gson;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import javax.swing.*;
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class MainWindowController {
+public class MainWindowController implements Initializable {
 
     @FXML
     private ResourceBundle resources;
@@ -65,19 +69,13 @@ public class MainWindowController {
     @FXML
     private Button editItemButton;
 
-    private final SceneManager sceneManager;
-    public static ItemModel itemModel;
-    private FileManager fileManager;
-    private Serializer serializer;
-
-    public MainWindowController(ItemModel itemModel, SceneManager sceneManager) {
-        this.itemModel = itemModel;
-        this.sceneManager = sceneManager;
-    }
+    public static ItemModel itemModel = new ItemModel();
+    private SceneManager sceneManager;
 
     public Dialog notValidInput = new Dialog();
 
-    public void initialize() {
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
         // TODO do the scenes have to be loaded through here?
         displayList();
 
@@ -104,7 +102,7 @@ public class MainWindowController {
         });
     }
 
-    public void onAddItemClick () {
+    public void onAddItemClick (ActionEvent actionEvent) {
         String serialNumber = serialNumberField.getText();
         String name = itemNameField.getText();
         double value;
@@ -124,7 +122,7 @@ public class MainWindowController {
 
     }
 
-    public void onEditItemClick() {
+    public void onEditItemClick(ActionEvent actionEvent) {
         Item oldItem = itemsTableView.getSelectionModel().getSelectedItem();
         Stage stage = new Stage();
         stage.setTitle("Add New Item");
@@ -132,7 +130,7 @@ public class MainWindowController {
         stage.show();
     }
 
-    public void onSaveAsClick() {
+    public void onSaveAsClick(ActionEvent actionEvent) {
         FileChooser saveFileChooser = new FileChooser();
         saveFileChooser.setTitle("Save File As...");
 
@@ -144,39 +142,49 @@ public class MainWindowController {
         String fileName = saveFileChooser.showSaveDialog(new Stage()).getAbsolutePath();
         String data = "";
 
-        //TODO Consider doing data processing inside the file manager class
-
-        // format data to CSV
+        // format data to CSV and save
+        FileManager fileManager = new FileManager();
         if (fileName.endsWith(".csv")) {
-            data = "Serial Number, Name, Price";
-            for (Item item : itemModel.inventory) {
-                data += item.getSerialNumber() + "," + item.getName() + "," + String.valueOf(item.getValue()) + "\n";
-            }
-          if (fileManager.saveAsCSV(fileName, data)) {
+            if (fileManager.saveAsCSV(itemModel, data, fileName)) {
               System.out.println("File Saved Successfully");
           } else {
               System.out.println("Problem Saving File");
           }
-        // format data to HTML
+        // format data to HTML and save
         } else if (fileName.endsWith(".html")) {
             //TODO
             // Format data from Observable list to HTML
-        // format data to JSON
+        // format data to JSON and save
         } else if (fileName.endsWith(".json")) {
-            Gson gson = new Gson();
-            List<Serializer> serializedList = new ArrayList<Serializer>();
-            for (Item item: itemModel.inventory) {
-                serializedList.add(serializer.serializeItem(item));
-            }
-            data = gson.toJson(serializedList);
-            if (fileManager.saveAsJson(fileName, data)) {
+
+            if (fileManager.saveAsJson(itemModel, data, fileName)) {
                 System.out.println("File Saved Successfully");
             } else {
                 System.out.println("Problem Saving File");
             }
+        }
+    }
 
+    public void onLoadInventoryClick(ActionEvent actionEvent) {
+        FileChooser loadFileChooser = new FileChooser();
+        loadFileChooser.setTitle("Choose File to Load");
+
+        loadFileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("CSV", "*.csv"),
+                new FileChooser.ExtensionFilter("HTML", "*.html"),
+                new FileChooser.ExtensionFilter("JSON", "*.json"));
+
+        String fileName = loadFileChooser.showOpenDialog(new Stage()).getAbsolutePath();
+
+        FileManager loadFile = new FileManager();
+        if (fileName.endsWith(".csv")) {
+            itemModel = loadFile.loadCSVFile(fileName);
+        } else if (fileName.endsWith(".html")) {
+            itemModel = loadFile.loadHTMLFile(fileName);
+        } else if (fileName.endsWith(".json")) {
+            itemModel = loadFile.loadJSONFile(fileName);
         }
 
-
+        displayList();
     }
 }

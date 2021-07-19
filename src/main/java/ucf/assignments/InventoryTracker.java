@@ -54,8 +54,12 @@ The application shall satisfy the following requirements:
     @Override
     public void start(Stage primaryStage) {
         SceneManager sceneManager = new SceneManager();
+
         sceneManager.load();
-        primaryStage.setScene(sceneManager.getScene("MainWindow"));
+
+        Scene scene = sceneManager.getScene("MainWindow");
+
+        primaryStage.setScene(scene);
         primaryStage.setTitle("Todo List App");
         primaryStage.show();
 
