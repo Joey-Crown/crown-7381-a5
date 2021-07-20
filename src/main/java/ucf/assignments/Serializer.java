@@ -17,4 +17,13 @@ public class Serializer {
         this.value = value;
     }
 
+    String serializeToHTML() {
+        String formattedRow = "  \t\t<tr>\n" +
+                "  \t\t\t<td>" + this.serialNumber + "</td>\n" +
+                "  \t\t\t<td>" + this.name + "</td>\n" +
+                "  \t\t\t<td>" + String.format("%.2f",this.value) + "</td>\n" +
+                "  \t\t</tr>\n";
+        return formattedRow;
+    }
+
 }

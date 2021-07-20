@@ -76,7 +76,6 @@ public class MainWindowController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // TODO do the scenes have to be loaded through here?
         displayList();
 
         itemsTableView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
@@ -130,6 +129,8 @@ public class MainWindowController implements Initializable {
         stage.show();
     }
 
+    //TODO change CSV to TSV in saving and loading
+
     public void onSaveAsClick(ActionEvent actionEvent) {
         FileChooser saveFileChooser = new FileChooser();
         saveFileChooser.setTitle("Save File As...");
@@ -145,19 +146,22 @@ public class MainWindowController implements Initializable {
         // format data to CSV and save
         FileManager fileManager = new FileManager();
         if (fileName.endsWith(".csv")) {
-            if (fileManager.saveAsCSV(itemModel, data, fileName)) {
+            if (fileManager.saveAsCSV(itemModel, fileName)) {
               System.out.println("File Saved Successfully");
           } else {
               System.out.println("Problem Saving File");
           }
         // format data to HTML and save
         } else if (fileName.endsWith(".html")) {
-            //TODO
-            // Format data from Observable list to HTML
+            if (fileManager.saveAsHTML(itemModel, fileName)) {
+                System.out.println("File Saved Successfully");
+            } else {
+                System.out.println("Problem Saving File");
+            }
         // format data to JSON and save
         } else if (fileName.endsWith(".json")) {
 
-            if (fileManager.saveAsJson(itemModel, data, fileName)) {
+            if (fileManager.saveAsJson(itemModel, fileName)) {
                 System.out.println("File Saved Successfully");
             } else {
                 System.out.println("Problem Saving File");

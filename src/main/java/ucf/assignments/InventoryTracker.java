@@ -48,7 +48,6 @@ The application shall satisfy the following requirements:
         launch(args);
     }
 
-    //TODO get scene manager working
 
     // opens the fxml file to display GUI to user
     @Override
