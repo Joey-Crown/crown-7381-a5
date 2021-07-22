@@ -16,7 +16,8 @@ class SceneManager {
 class MainWindowController {
     items : ItemModel
 
-    + MainWindowController(ItemModel, SceneManager)
+    + MainWindowController(ItemModel, SceneManager,
+                           EditItemWindowController)
 
     addItemButtonClicked(EventHandler)
     editItemButtonClicked(EventHandler)
@@ -30,10 +31,10 @@ class MainWindowController {
     saveInventoryAsJSON(filename: String)
 }
 
-class AddItemWindowController {
+class EditItemWindowController {
 }
 
-class EditItemWindowController {
+class AddItemWindowController {
 }
 
 class RemoveItemWindowController {
@@ -84,7 +85,7 @@ AddItemWindowController o-- ItemModel
 EditItemWindowController o-- ItemModel
 RemoveItemWindowController o-- ItemModel
 SearchItemWindowController o-- ItemModel
-
+MainWindowController o- EditItemWindowController
 ItemModel *-- Item
 
 

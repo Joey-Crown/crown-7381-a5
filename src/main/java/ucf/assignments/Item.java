@@ -61,11 +61,28 @@ public class Item {
 
         for (int i = 0; i < serialNumberArray.length; i++) {
             if (!Character.isDigit(serialNumberArray[i]) && !Character.isLetter(serialNumberArray[i])) {
-                System.out.println("Serial number in incorrect format.");
                 return false;
             }
         }
         return true;
+    }
+
+    public static boolean verifyValueFormat(String value) {
+        try {
+             Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        String[] decimalPlaces = value.split("\\.");
+
+        if (decimalPlaces.length == 2) {
+            System.out.println(decimalPlaces[1]);
+            return decimalPlaces[1].length() <= 2;
+        } else if (decimalPlaces.length == 1){
+            return true;
+        }
+        System.out.println(decimalPlaces.length);
+        return false;
     }
 }
 

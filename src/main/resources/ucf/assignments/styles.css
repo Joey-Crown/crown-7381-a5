@@ -1,0 +1,9 @@
+.textField {
+    -fx-background-color: -fx-text-box-border, -fx-background;
+    -fx-background-insets: 0, 1 0 1 0;
+    -fx-background-radius: 0;
+}
+.textField:focused {
+    -fx-background-color: -fx-focus-color, -fx-background;
+    -fx-prompt-text-fill: transparent;
+}
