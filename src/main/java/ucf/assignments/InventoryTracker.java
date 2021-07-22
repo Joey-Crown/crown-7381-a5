@@ -43,6 +43,12 @@ The application shall satisfy the following requirements:
     The user shall be able to load inventory items from a file that was previously created by the application.
         The user shall provide the file name and file location of the file to load
  */
+    //Todo Pseudocode
+    //Todo Update UML diagram
+    //Todo unit testing
+    //Todo make sure to not allow duplicate serial numbers (display error message)
+    //Todo Name must be between 1-256 chars
+    //Todo include User Guide
 
     public static void main(String[] args) {
         launch(args);
