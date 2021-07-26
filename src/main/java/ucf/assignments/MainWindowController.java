@@ -97,12 +97,13 @@ public class MainWindowController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        itemModel.inventory.addAll(new Item("XBOX123456", "Xbox Series S", 299.99),
+        // populate list for testing
+        /* itemModel.inventory.addAll(new Item("XBOX123456", "Xbox Series S", 299.99),
                 new Item("PS51234567", "Playstation 5", 499.99),
                 new Item("SWITCH1234", "Nintendo Switch", 299.99),
                 new Item("PS49712738", "Playstation 4", 299.99),
                 new Item("3DS7563421", "Nintendo 3DS", 99.99),
-                new Item("XSX7615342", "Xbox Series X", 499.99));
+                new Item("XSX7615342", "Xbox Series X", 499.99)); */
         displayList(itemModel.inventory);
 
         itemsTableView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
@@ -177,7 +178,7 @@ public class MainWindowController implements Initializable {
         // add item to inventory
         if (Item.verifySerialNumberFormat(serialNumber) && Item.verifyNameFormat(name) &&
                 Item.verifyValueFormat(itemPriceField.getText()) && itemModel.checkUniqueSerial(serialNumber)) {
-            Item newItem = new Item(name, serialNumber, value);
+            Item newItem = new Item(serialNumber, name, value);
             itemModel.inventory.add(newItem);
         } else {
 
