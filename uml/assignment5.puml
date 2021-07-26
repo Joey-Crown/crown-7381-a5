@@ -2,8 +2,8 @@
 'https://plantuml.com/sequence-diagram
 
 class InventoryTracker {
-    start()
-    main()
+    + start(Stage) : void
+    + main(String[]) : void
 }
 
 class SceneManager {
@@ -14,37 +14,48 @@ class SceneManager {
 }
 
 class MainWindowController {
-    items : ItemModel
+    - itemModel: ItemModel
+    - sceneManager: SceneManager
+    - editItemController: EditItemWindowController
 
     + MainWindowController(ItemModel, SceneManager,
                            EditItemWindowController)
 
-    addItemButtonClicked(EventHandler)
-    editItemButtonClicked(EventHandler)
-    removeItemButtonClicked(EventHandler)
+    + initialize(URL, ResourceBundle)
+    + displayList(ObservableList<Item) : void
+    + showAlertWindow(String, String) : void
 
-    addItem(String, String, BigDecimal)
-    editItem()
-
-    saveInventoryAsCSV(filename: String)
-    saveInventoryAsHTML(filename: String)
-    saveInventoryAsJSON(filename: String)
+    'GUI Event Handlers
+    onAddItemClick(ActionEvent) : void
+    onEditItemClick(ActionEvent) : void
+    onSaveAsClick(ActionEvent) : void
+    onLoadInventoryClick(ActionEvent) : void
 }
 
 class EditItemWindowController {
-}
+    - itemModel : ItemModel
+    - sceneManager : SceneManager
 
-class AddItemWindowController {
-}
+    + EditItemWindowController(ItemModel, SceneManager)
 
-class RemoveItemWindowController {
-}
+    + initialize() : void
 
-class SearchItemWindowController {
+    'GUI Event Handlers
+    onSaveEditButtonClick(ActionEvent) : void
+    onCloseButtonClick(ActionEvent) : void
+
 }
 
 class ItemModel {
     - ObservableList<Item>
+    - currentlySelected : Item
+
+    + setCurrentlySelected(Item) : void
+    + getCurrentlySelected() : Item
+    + editSelectedItem(Item) : void
+    + deleteSelectedItem() : void
+    + searchInventory(String, String) : ObservableList<Item>
+    + checkUniqueSerial(String) : boolean
 }
 
 class Item {
@@ -52,41 +63,50 @@ class Item {
     - serialNumber: SimpleStringProperty
     - value: SimpleDoubleProperty
 
-    + getName()
-    + setName()
+    + getName() : String
+    + setName(String) : void
     + nameProperty()
-    + getSerialNumber()
-    + setSerialNumber()
+    + getSerialNumber() : String
+    + setSerialNumber(String) : void
     + serialNumberProperty()
-    + getValue()
-    + setValue()
+    + getValue() : double
+    + setValue(double) : void
     + valueProperty()
 
     + verifySerialNumberFormat(String): boolean
+    + verifyValueFormat(String) : boolean
+    + verifyNameFormat(String) : boolean
 }
 
 class FileManager {
-    saveAsCSV(filename: String), data: String)
-    saveAsJSON(filename: String), data: String)
-    saveAsHTML(filename: String), data: String)
+    + saveAsCSV(ItemModel, String) : boolean
+    + saveAsJSON(ItemModel, String) : boolean
+    + saveAsHTML(ItemModel, String) : boolean
+    + saveToFile(String, String) : boolean
+    + loadTSVFile(String) : ItemModel
+    + loadHTMLFile(String) : ItemModel
+    + loadJSONFile(String) : ItemModel
+    + getBoilerplateHTML() : String
+}
+
+class Serializer {
+    - serialNumber: String
+    - name: String
+    - value: double
+
+    serializeToHTML(): String
 }
 
 
 openjfx.org.Application <|-- InventoryTracker
 InventoryTracker -- SceneManager
 SceneManager --- MainWindowController
-SceneManager --- AddItemWindowController
 SceneManager --- EditItemWindowController
-SceneManager --- RemoveItemWindowController
-SceneManager --- SearchItemWindowController
 MainWindowController o-- FileManager
 MainWindowController o-- ItemModel
-AddItemWindowController o-- ItemModel
 EditItemWindowController o-- ItemModel
-RemoveItemWindowController o-- ItemModel
-SearchItemWindowController o-- ItemModel
 MainWindowController o- EditItemWindowController
 ItemModel *-- Item
-
+FileManager o- Serializer
 
 @enduml

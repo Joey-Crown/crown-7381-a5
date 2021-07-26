@@ -17,6 +17,7 @@ public class Serializer {
         this.value = value;
     }
 
+    // converts a serialized item to an html table row
     String serializeToHTML() {
         String formattedRow = "  \t\t<tr>\n" +
                 "  \t\t\t<td>" + this.serialNumber + "</td>\n" +

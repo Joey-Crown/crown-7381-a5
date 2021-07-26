@@ -1,7 +1,5 @@
 package ucf.assignments;
 
-import com.google.gson.Gson;
-import com.sun.tools.javac.Main;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -15,11 +13,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import javax.swing.*;
-import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class MainWindowController implements Initializable {
@@ -34,6 +29,10 @@ public class MainWindowController implements Initializable {
     private Menu fileMenu;
     @FXML
     private MenuItem saveFile;
+    @FXML
+    private MenuItem loadFile;
+    @FXML
+    private MenuItem quitApplication;
 
     // search bar elements
     @FXML
@@ -94,16 +93,17 @@ public class MainWindowController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        itemModel.inventory.addAll(new Item("Xbox Series S", "XBOX123456", 299.99),
-                new Item("Playstation 5", "PS51234567", 499.99),
-                new Item("Nintendo Switch", "SWITCH1234", 299.99),
-                new Item("Playstation 4", "PS49712738", 299.99),
-                new Item("Nintendo 3DS", "3DS7563421", 99.99),
-                new Item("Xbox Series X", "XSX7615342", 499.99));
+        itemModel.inventory.addAll(new Item("XBOX123456", "Xbox Series S", 299.99),
+                new Item("PS51234567", "Playstation 5", 499.99),
+                new Item("SWITCH1234", "Nintendo Switch", 299.99),
+                new Item("PS49712738", "Playstation 4", 299.99),
+                new Item("3DS7563421", "Nintendo 3DS", 99.99),
+                new Item("XSX7615342", "Xbox Series X", 499.99));
         displayList(itemModel.inventory);
 
         itemsTableView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
+        // listens for change in selection on tableview, sets selected item to itemModel.currentlySelected
         itemsTableView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Item>() {
             @Override
             public void changed(ObservableValue<? extends Item> observable, Item oldValue, Item newValue) {
@@ -113,10 +113,10 @@ public class MainWindowController implements Initializable {
             }
         });
 
-        //searchOptions = new ChoiceBox<String>(FXCollections.observableArrayList("Serial Number", "Name", "Price"));
         searchOptions.setItems(FXCollections.observableArrayList("Serial Number", "Name", "Price"));
         searchOptions.setValue("Serial Number");
 
+        // listens for change in the text of the search bar, then searches for items and displays them
         searchField.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -131,12 +131,15 @@ public class MainWindowController implements Initializable {
         });
     }
 
+    // takes the inventory property from itemModel and displays items
     public void displayList(ObservableList<Item> inventory) {
         itemsTableView.setItems(inventory);
 
         itemsSerialNumberColumn.setCellValueFactory(new PropertyValueFactory<Item, String>("serialNumber"));
         itemsNameColumn.setCellValueFactory(new PropertyValueFactory<Item, String>("name"));
         itemsValueColumn.setCellValueFactory(new PropertyValueFactory<Item, Double>("value"));
+
+        // format value property as a price (e.g. "199.99")
         itemsValueColumn.setCellFactory(tc -> new TableCell<Item, Double>() {
             @Override
             protected void updateItem(Double value, boolean empty) {
@@ -151,7 +154,10 @@ public class MainWindowController implements Initializable {
         });
     }
 
+    // when "Add Item" button is clicked, data from text fields is processed and added to the inventory
     public void onAddItemClick (ActionEvent actionEvent) {
+
+        // parse data from text fields
         String serialNumber = serialNumberField.getText();
         String name = itemNameField.getText();
         double value;
@@ -162,15 +168,37 @@ public class MainWindowController implements Initializable {
             return;
         }
 
-        if (Item.verifySerialNumberFormat(serialNumber) && value > 0) {
+        // verify that values from text fields meet inventory item requirements
+        // initialize new Item object with parsed data
+        // add item to inventory
+        if (Item.verifySerialNumberFormat(serialNumber) && Item.verifyNameFormat(name) &&
+                Item.verifyValueFormat(itemPriceField.getText()) && itemModel.checkUniqueSerial(serialNumber)) {
             Item newItem = new Item(name, serialNumber, value);
             itemModel.inventory.add(newItem);
         } else {
-            showAlertWindow("Error Adding Item", "Check serial number format (\"XXXXXXXXXX\").");
+
+            // alerts will be displayed for each invalid input detailing what the requiements are
+
+            if (!Item.verifySerialNumberFormat(serialNumber)) {
+                showAlertWindow("Error Adding Item", "Check serial number format (\"XXXXXXXXXX\").");
+            }
+
+            if (!Item.verifyNameFormat(name)) {
+                showAlertWindow("Error Adding Item", "Name must be between 2-256 characters long.");
+            }
+
+            if (!Item.verifyValueFormat(itemPriceField.getText())) {
+                showAlertWindow("Error Adding Item", "Price must be a dollar value (e.g. \"4.00\", \"4\").");
+            }
+
+            if (!itemModel.checkUniqueSerial(serialNumber)) {
+                showAlertWindow("Error Adding Item", "Serial Number already exists in inventory.");
+            }
         }
 
     }
 
+    // when "Edit Item" is clicked, an edit item window is initialized and populated with the info of the selected item
     public void onEditItemClick(ActionEvent actionEvent) {
         if (itemModel.currentlySelected != null) {
             Stage stage = new Stage();
@@ -184,73 +212,111 @@ public class MainWindowController implements Initializable {
         }
     }
 
-    //TODO change CSV to TSV in saving and loading
-
+    // when "Save As" menu item is clicked, opens a file chooser
+    // takes file name form user input and the file format chosen
+    // saves inventory in that file format
     public void onSaveAsClick(ActionEvent actionEvent) {
         FileChooser saveFileChooser = new FileChooser();
         saveFileChooser.setTitle("Save File As...");
 
         saveFileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("CSV", "*.csv"),
-                new FileChooser.ExtensionFilter("HTML", "*.html"),
-                new FileChooser.ExtensionFilter("JSON", "*.json"));
+                new FileChooser.ExtensionFilter("TSV (*.TSV)", "*.tsv"),
+                new FileChooser.ExtensionFilter("HTML (*.HTML)", "*.html"),
+                new FileChooser.ExtensionFilter("JSON (*.JSON)", "*.json"));
 
-        String fileName = saveFileChooser.showSaveDialog(new Stage()).getAbsolutePath();
-        String data = "";
+        String fileName;
+
+        // get file name and directory from user
+        try {
+            fileName = saveFileChooser.showSaveDialog(new Stage()).getAbsolutePath();
+        } catch (NullPointerException e) {
+            return;
+        }
 
         // format data to CSV and save
         FileManager fileManager = new FileManager();
-        if (fileName.endsWith(".csv")) {
-            if (fileManager.saveAsCSV(itemModel, fileName)) {
+        if (fileName.endsWith(".tsv")) {
+            if (fileManager.saveAsTSV(itemModel, fileName)) {
               System.out.println("File Saved Successfully");
           } else {
-              System.out.println("Problem Saving File");
+              showAlertWindow("File Error", "Error saving file.");
           }
+
         // format data to HTML and save
         } else if (fileName.endsWith(".html")) {
             if (fileManager.saveAsHTML(itemModel, fileName)) {
                 System.out.println("File Saved Successfully");
             } else {
-                System.out.println("Problem Saving File");
+                showAlertWindow("File Error", "Error saving file.");
             }
+
         // format data to JSON and save
         } else if (fileName.endsWith(".json")) {
 
             if (fileManager.saveAsJson(itemModel, fileName)) {
                 System.out.println("File Saved Successfully");
             } else {
-                System.out.println("Problem Saving File");
+                showAlertWindow("File Error", "Error saving file.");
             }
         }
     }
 
+    // when "Load" menu item is clicked, provides user with file chooser
+    // takes user selected file and loads file based on its extension
     public void onLoadInventoryClick(ActionEvent actionEvent) {
         FileChooser loadFileChooser = new FileChooser();
         loadFileChooser.setTitle("Choose File to Load");
 
         loadFileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("CSV", "*.csv"),
-                new FileChooser.ExtensionFilter("HTML", "*.html"),
-                new FileChooser.ExtensionFilter("JSON", "*.json"));
+                new FileChooser.ExtensionFilter("TSV (*.TSV)", "*.tsv"),
+                new FileChooser.ExtensionFilter("HTML (*.HTML)", "*.html"),
+                new FileChooser.ExtensionFilter("JSON (*.JSON)", "*.json"));
 
-        String fileName = loadFileChooser.showOpenDialog(new Stage()).getAbsolutePath();
+        String fileName;
 
+        // get filename from user through file chooser
+        try {
+            fileName = loadFileChooser.showOpenDialog(new Stage()).getAbsolutePath();
+        } catch (NullPointerException e) {
+            return;
+        }
+
+        // check file extension and call the associated load method
         FileManager loadFile = new FileManager();
-        if (fileName.endsWith(".csv")) {
-            itemModel = loadFile.loadCSVFile(fileName);
+        if (fileName.endsWith(".tsv")) {
+            itemModel = loadFile.loadTSVFile(fileName);
         } else if (fileName.endsWith(".html")) {
             itemModel = loadFile.loadHTMLFile(fileName);
         } else if (fileName.endsWith(".json")) {
             itemModel = loadFile.loadJSONFile(fileName);
         }
 
+        // display list
         displayList(itemModel.inventory);
     }
 
+    // when "Quit" menu item is clicked, provides a confirmation dialogue
+    // if user clicks "Yes", application closes, if "Cancel" user returns to application.
+    public void onQuitApplicationClick() {
+        Alert closeAlert = new Alert(Alert.AlertType.CONFIRMATION,
+                "Are you sure you want to quit the application?",
+                ButtonType.YES,
+                ButtonType.CANCEL);
+        closeAlert.setTitle("Quit");
+       Optional<ButtonType> confirm = closeAlert.showAndWait();
+        if (confirm.get() == ButtonType.YES) {
+            Stage closeStage = (Stage) sceneManager.getScene("MainWindow").getWindow();
+            closeStage.close();
+        }
+    }
+
+    // takes currently selected item and removes it from the inventory
     public void onDeleteItemClick(ActionEvent actionEvent) {
         itemModel.deleteSelectedItem();
     }
 
+    // method to set the title and text of an alert window
+    // displays alert to user
     private void showAlertWindow(String title, String text) {
         notValidInput.setTitle(title);
         notValidInput.setContentText(text);

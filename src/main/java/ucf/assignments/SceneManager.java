@@ -12,6 +12,8 @@ public class SceneManager {
 
     Map<String, Scene> scenes = new HashMap<>();
 
+    // loads fxml files and associated controllers
+    // adds scenes to a HashMap with a String key
     void load() {
         ItemModel itemModel = new ItemModel();
 
@@ -31,7 +33,6 @@ public class SceneManager {
             e.printStackTrace();
         }
 
-        //TODO fix error loading edit window scene with its controller
         loader = new FXMLLoader(getClass().getResource("EditItemWindow.fxml"));
         loader.setController(editItemController);
 
@@ -44,6 +45,7 @@ public class SceneManager {
 
     }
 
+    // retrieves the scene from the HashMap 'scenes' given valid key
     public Scene getScene(String name) {
         return scenes.get(name);
     }

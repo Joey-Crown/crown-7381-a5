@@ -35,7 +35,7 @@ The application shall satisfy the following requirements:
     The user shall be able to search for an inventory item by serial number
     The user shall be able to search for an inventory item by name
     The user shall be able to save their inventory items to a file
-        The user shall be able to select the file format from among the following set of options: TSV (tab-separated value), HTML, JSON (TODO Change CSV saving to TSV)
+        The user shall be able to select the file format from among the following set of options: TSV (tab-separated value), HTML, JSON
             TSV files shall shall list one inventory item per line, separate each field within an inventory item using a tab character, and end with the extension .txt
             HTML files shall contain valid HTML and end with the extension .html
             JSON files shall contain valid JSON and end with the extension .json
@@ -43,12 +43,8 @@ The application shall satisfy the following requirements:
     The user shall be able to load inventory items from a file that was previously created by the application.
         The user shall provide the file name and file location of the file to load
  */
-    //Todo Pseudocode
-    //Todo Update UML diagram
-    //Todo unit testing
-    //Todo make sure to not allow duplicate serial numbers (display error message)
-    //Todo Name must be between 1-256 chars
     //Todo include User Guide
+    //Todo add copyright to top of java files
 
     public static void main(String[] args) {
         launch(args);

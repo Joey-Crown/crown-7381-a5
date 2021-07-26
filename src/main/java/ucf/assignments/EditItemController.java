@@ -18,18 +18,17 @@ public class EditItemController {
     @FXML
     private Label priceLabel;
 
+    // text fields for changing Item data
     @FXML
     private TextField editSerialNumberField;
-
     @FXML
     private TextField editNameField;
-
     @FXML
     private TextField editPriceField;
 
+    // button elements
     @FXML
     private Button saveEditButton;
-
     @FXML
     private Button cancelButton;
 
@@ -42,6 +41,7 @@ public class EditItemController {
         this.sceneManager = sceneManager;
     }
 
+    // uses the currently selected item to populate textfields with the already stored data
     public void setTextFieldData(Item item) {
 
         editSerialNumberField.setText(item.getSerialNumber());
@@ -51,11 +51,16 @@ public class EditItemController {
 
     public void initialize() {
 
+        // listens for changes made to the text in the text field for serial number
+        // gives responsive feedback to user of whether the text currently in the field is a valid input
         editSerialNumberField.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 if (!Item.verifySerialNumberFormat(editSerialNumberField.getText())) {
                     serialNumberLabel.setText("Not a valid Serial Number");
+                    serialNumberLabel.setStyle("-fx-text-fill: red");
+                } else if (!itemModel.checkUniqueSerial(editSerialNumberField.getText())) {
+                    serialNumberLabel.setText("Duplicate Serial Number");
                     serialNumberLabel.setStyle("-fx-text-fill: red");
                 } else {
                     serialNumberLabel.setText("Serial Number");
@@ -64,6 +69,23 @@ public class EditItemController {
             }
         });
 
+        // listens for changes made to the text in the text field for name
+        // checks if name is valid and if not displays to user the input is not valid
+        editNameField.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (!Item.verifyNameFormat(editNameField.getText())) {
+                    serialNumberLabel.setText("Not a valid Name");
+                    serialNumberLabel.setStyle("-fx-text-fill: red");
+                } else {
+                    serialNumberLabel.setText("Name");
+                    serialNumberLabel.setStyle("-fx-text-fill: black");
+                }
+            }
+        });
+
+        // listens for change in price text field
+        // warns user when invalid price is entered
         editPriceField.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -78,6 +100,11 @@ public class EditItemController {
         });
     }
 
+    // clicking the "Save Edit" button takes the information currently stored in the text fields
+    // parses the "price" for a double value
+    // if all values are valid inputs:
+    // uses the currentlySelected ItemModel property and new input data to call editSelectedItem in class ItemModel
+    // replaces currently selected item with item populated with new data
     public void onSaveEditButtonClick(ActionEvent actionEvent) {
         String newSerialNumber = editSerialNumberField.getText();
         String newName = editNameField.getText();
@@ -87,8 +114,8 @@ public class EditItemController {
         } catch (NumberFormatException e) {
             return;
         }
-        if (Item.verifySerialNumberFormat(newSerialNumber)) {
-            Item newItem = new Item(newName, newSerialNumber, newPrice);
+        if (Item.verifySerialNumberFormat(newSerialNumber) && itemModel.checkUniqueSerial(newSerialNumber)) {
+            Item newItem = new Item(newSerialNumber, newName, newPrice);
             itemModel.editSelectedItem(newItem);
         } else {
             return;
@@ -97,6 +124,7 @@ public class EditItemController {
         saveEditButton.getScene().getWindow().hide();
     }
 
+    // clicking the cancel button hides the window and doesn't make any changes to the selected item
     public void onCloseButtonClick(ActionEvent actionEvent) {
         cancelButton.getScene().getWindow().hide();
     }
