@@ -27,7 +27,6 @@
          <contextMenu>
             <ContextMenu fx:id="tableContextMenu">
               <items>
-                  <MenuItem fx:id="contextMenuAddItem" mnemonicParsing="false" text="Add Item" />
                 <MenuItem fx:id="contextMenuDeleteItem" mnemonicParsing="false" onAction="#onDeleteItemClick" text="Delete Selected Item" />
                   <MenuItem fx:id="contextMenuEditItem" mnemonicParsing="false" onAction="#onEditItemClick" text="Edit Item" />
               </items>
@@ -66,16 +65,6 @@
                         <MenuItem fx:id="loadFile" mnemonicParsing="false" onAction="#onLoadInventoryClick" text="Load" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem fx:id="quitApplication" mnemonicParsing="false" onAction="#onQuitApplicationClick" text="Quit" />
-                  </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Find">
-                  <items>
-                    <MenuItem mnemonicParsing="false" text="Search" />
-                  </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Help">
-                  <items>
-                    <MenuItem mnemonicParsing="false" text="About" />
                   </items>
                 </Menu>
               </menus>
