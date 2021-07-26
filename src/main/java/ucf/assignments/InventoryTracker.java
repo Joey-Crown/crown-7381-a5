@@ -43,8 +43,6 @@ The application shall satisfy the following requirements:
     The user shall be able to load inventory items from a file that was previously created by the application.
         The user shall provide the file name and file location of the file to load
  */
-    //Todo include User Guide
-    //Todo add copyright to top of java files
 
     public static void main(String[] args) {
         launch(args);
